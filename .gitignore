@@ -1,0 +1,17 @@
+.gradle/
+.gradle-user-home/
+build/
+run/
+.idea/
+*.iml
+.DS_Store
+.tools/
+
+# Local apps, credentials and generated files
+*.app/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.log
+.codex/

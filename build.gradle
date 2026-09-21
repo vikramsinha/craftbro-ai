@@ -1,0 +1,73 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+configurations {
+    telemetryLibraries
+    implementation.extendsFrom telemetryLibraries
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    telemetryLibraries 'io.opentelemetry:opentelemetry-sdk:1.66.0'
+    telemetryLibraries('io.opentelemetry:opentelemetry-exporter-otlp:1.66.0') {
+        exclude group: 'io.opentelemetry', module: 'opentelemetry-exporter-sender-okhttp'
+    }
+    telemetryLibraries 'io.opentelemetry:opentelemetry-exporter-sender-jdk:1.66.0'
+}
+
+// Fabric's nested JARs must contain the SDK's entire runtime dependency graph.
+configurations.telemetryLibraries.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+    dependencies.add('include', artifact.moduleVersion.id.toString())
+}
+
+tasks.register('telemetrySmokeTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.example.hellomod.TelemetrySmokeTest'
+}
+tasks.named('check') { dependsOn telemetrySmokeTest }
+tasks.register('aiSmokeTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.example.hellomod.AiSmokeTest'
+}
+tasks.named('check') { dependsOn aiSmokeTest }
+tasks.register('aiLiveTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.example.hellomod.AiSmokeTest'
+    args 'live'
+}
+// Integration checks use the executable OTLP receiver above, rather than JUnit.
+tasks.named('test') { failOnNoDiscoveredTests = false }
+
+tasks.register('telemetryDemo', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.example.hellomod.TelemetrySmokeTest'
+    args 'dashboard'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
