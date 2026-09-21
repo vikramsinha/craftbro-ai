@@ -1,8 +1,10 @@
 # CraftBro AI
 
-**Less grinding. Still survival.**
+CraftBro AI is a Minecraft Java mod powered by local AI. It currently gives advice based on your location, health, and inventory. The goal is to let you point at something in the world and ask for repetitive work to be done—chopping a tree, clearing an area, or replacing blocks—using your tools and materials under normal survival rules.
 
-An unofficial AI companion mod for Minecraft Java Edition **1.21.1**, built with Fabric and a local Ollama model.
+Built for **Minecraft Java Edition 1.21.1** with **Fabric** and **Ollama**. AI inference runs on your own machine, without a cloud subscription or API key.
+
+**Status: early prototype. Contextual advice and telemetry work today; world-changing actions are planned.**
 
 ## First draft: what works today
 
@@ -14,9 +16,19 @@ An unofficial AI companion mod for Minecraft Java Edition **1.21.1**, built with
 
 **The AI currently gives advice only. It cannot break, place, or change blocks.** Small models can give incorrect advice; each request is independent and has no conversation memory.
 
-## Direction
+## Planned: point, ask, and act
 
-Point at a tree or area and ask your companion to handle repetitive work. Planned interactions include chopping trees, clearing selected areas, and replacing blocks. The intended design respects survival mechanics: previews and confirmation, appropriate tools, durability, inventory costs, normal drops, and cancellation. These actions are not implemented in this draft.
+The next stage is assistance with repetitive survival tasks:
+
+| Request | Intended behavior |
+| --- | --- |
+| Point at a tree: “Chop this tree.” | Preview the selected tree, then break its logs progressively using an appropriate tool and consuming durability. |
+| Select an area: “Clear this patch.” | Show the affected blocks before clearing within the confirmed boundaries and collecting normal drops. |
+| Point at a surface: “Replace this with stone.” | Preview the replacement and required materials, then use blocks from your inventory. |
+
+The player chooses the task and approves its scope. AI interprets the instruction; game code will validate and execute the permitted action. Planned safeguards include cancellation, checks for sufficient materials and usable tools, and stopping when an action can no longer proceed safely.
+
+These are design goals, not features in the current release. The first planned action is tree chopping. The aim is **less grinding while keeping the resource costs and progression of survival gameplay**.
 
 ## Requirements
 
